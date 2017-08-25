@@ -18,11 +18,14 @@ private:
   cv::VideoCapture source_;
 
   cv::Mat frame_;
+  cv::Mat frame_hsv_;
+
   cv::Mat roi_;
   cv::Mat roi_hsv_;
   cv::Mat mask_;
   cv::Mat roi_hist_; // the only cv::Mat required to be a member
+  cv::Rect window_;
 
-  cv::TermCriteria mean_shift_term_;
+  cv::TermCriteria mean_shift_criteria_;
 
 };

@@ -1,6 +1,5 @@
 #include "example.h"
 
-
 ExampleClass::ExampleClass()
 {
   std::cout << "class instantiated" << std::endl;
@@ -28,7 +27,8 @@ ExampleClass::ExampleClass()
   uint32_t row = 160;
   uint32_t w   = 40;
   uint32_t h   = 60;
-  cv::Mat roi_ = frame_(cv::Rect(col, row, w, h)).clone();
+  window_ = cv::Rect(col, row, w, h);
+  cv::Mat roi_ = frame_(window_).clone();
   cv::imshow("roi", roi_);
 
   // draw rectangle
@@ -40,8 +40,8 @@ ExampleClass::ExampleClass()
   cv::imshow("roi_hsv", roi_hsv_);
 
   // generate the mask used when finding the histogram
-  cv::inRange(roi_hsv_, cv::Scalar(0,0,0), cv::Scalar(255,255,255), mask_);
-  cv::imshow("roi_mask", mask_);
+  cv::inRange(roi_hsv_, cv::Scalar(0,0,0), cv::Scalar(180,255,255), mask_);
+  cv::imshow("roi_mask", mask_); // THIS IS WHAT DETERMINES WHAT THE HISTOGRAM MEASURES
 
   // histogram using hue channel only (as seen in examples)
   int n_images = 1; // one image only
@@ -56,12 +56,13 @@ ExampleClass::ExampleClass()
   cv::normalize(roi_hist_, roi_hist_, 0, 255, cv::NORM_MINMAX);
 
   // termination criteria for the mean-shift operation
-  mean_shift_term_ = cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10, 1);
+  mean_shift_criteria_ = cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10, 1);
 
   // close the video source for scoping reasons
   source_.release();
 }
 
+// ----------------------------------------------------------------------------
 
 void ExampleClass::operations()
 {
@@ -86,18 +87,26 @@ void ExampleClass::operations()
     if (frame_.empty())
       return;
 
-    // hsv the frame
+    // convert frame to HSV
+    cv::cvtColor(frame_, frame_hsv_, cv::COLOR_BGR2HSV);
+    cv::imshow("frame_hsv", frame_hsv_);
 
-    // back project the frame with the roi_hist_ that is remembered
+    // calculate the back projection
+    int n_images = 1; // one image only
+    int channels = 0; // use the first channel (hue)
+    cv::Mat back_project;
+    float hue_ranges[] = {0, 180}; // hue varies from 0 to 179, see cvtColor
+    const float* ranges = hue_ranges; // make const pointer
+    cv::calcBackProject(&frame_hsv_, n_images, &channels, roi_hist_, back_project, &ranges);
 
     // apply mean-shift
+    cv::meanShift(back_project, window_, mean_shift_criteria_);
 
-    // use the resulting window to draw the new rectangle
+    // draw rectangle
+    cv::rectangle(frame_, window_, cv::Scalar(255, 0, 0), 2);
+    cv::imshow("frame", frame_);
+
     // NOTE: this operates on the entire window, use the current estimate
     // to select a subwindow, decreasing the amount of backprop required?
-
-    // draw the resulting rectangle
-
-    cv::imshow("frame", frame_); // TEMP
   }
 }
