@@ -4,7 +4,8 @@ Description
 
 ### Run
 
-Note about needing a video in a certain location
+A .mp4 file named sample.mp4 is required to be in the videos folder
+
 ```bash
 # cmake will echo helpful information about which libraries are being used
 cd build/
