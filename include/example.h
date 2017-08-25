@@ -15,12 +15,13 @@ public:
 
 private:
   std::string video_path_;
-  cv::Mat frame_;
+  cv::VideoCapture source_;
 
+  cv::Mat frame_;
   cv::Mat roi_;
   cv::Mat roi_hsv_;
   cv::Mat mask_;
-  cv::Mat roi_hist_;
+  cv::Mat roi_hist_; // the only cv::Mat required to be a member
 
   cv::TermCriteria mean_shift_term_;
 

@@ -5,28 +5,35 @@ ExampleClass::ExampleClass()
 {
   std::cout << "class instantiated" << std::endl;
 
-  // open video here
-  std::string video_path_ = "../videos/sample.mp4";
-  cv::VideoCapture source(video_path_);
+  // initialize windows
+  cv::namedWindow("frame", CV_WINDOW_AUTOSIZE);
+  cv::moveWindow("frame", 50, 50);
 
-  if (!source.isOpened())
+  // open video here
+  video_path_ = "../videos/sample.mp4";
+  cv::VideoCapture source_(video_path_);
+
+  if (!source_.isOpened())
     std::cout << "invalid video file path" << std::endl;
 
-  source >> frame_;
+  source_ >> frame_;
   if(frame_.empty())
   {
     std::cout << "frame is bad" << std::endl;
     return;
   }
-  cv::imshow("frame", frame_);
 
   // hard-coded location of object in first frame
   uint32_t col = 160;
   uint32_t row = 160;
   uint32_t w   = 40;
   uint32_t h   = 60;
-  cv::Mat roi_ = frame_(cv::Rect(col, row, w, h));
+  cv::Mat roi_ = frame_(cv::Rect(col, row, w, h)).clone();
   cv::imshow("roi", roi_);
+
+  // draw rectangle
+  cv::rectangle(frame_, cv::Point(col,row), cv::Point(col+w, row+h), cv::Scalar(255, 0, 0), 2);
+  cv::imshow("frame", frame_);
 
   // convert roi to HSV
   cv::cvtColor(roi_, roi_hsv_, cv::COLOR_BGR2HSV);
@@ -51,27 +58,46 @@ ExampleClass::ExampleClass()
   // termination criteria for the mean-shift operation
   mean_shift_term_ = cv::TermCriteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10, 1);
 
-
-  cv::waitKey();
+  // close the video source for scoping reasons
+  source_.release();
 }
 
 
 void ExampleClass::operations()
 {
-  // perform operation on uMat class member
-  std::cout << "starting operations" << std::endl;
+  // perform operations
+  std::cout << "starting operations; press esc to end early" << std::endl;
 
-  // while (true) {
-  //   // get the next frame; loop if the end of the video is reached
-  //   source >> frame_;
-  //   if(frame_.empty())
-  //   {
-  //     std::cout << "looping video" << std::endl;
-  //     source.release();
-  //     source.open(video_path_);
-  //     source >> frame_; // TODO: remove endless loop
-  //   }
-  // }
+  // reopen the video source and resume at frame 2
+  source_.open(video_path_);
+  source_.set(CV_CAP_PROP_POS_FRAMES, 1);
+  if (!source_.isOpened())
+    std::cout << "invalid video file path" << std::endl;
 
+  while (true)
+  {
+    // plot the results of the last iteration and wait for keypress
+    auto key = cv::waitKey();
+    if ((int)key==27)
+      return;
 
+    // get the next frame
+    source_ >> frame_;
+    if (frame_.empty())
+      return;
+
+    // hsv the frame
+
+    // back project the frame with the roi_hist_ that is remembered
+
+    // apply mean-shift
+
+    // use the resulting window to draw the new rectangle
+    // NOTE: this operates on the entire window, use the current estimate
+    // to select a subwindow, decreasing the amount of backprop required?
+
+    // draw the resulting rectangle
+
+    cv::imshow("frame", frame_); // TEMP
+  }
 }
