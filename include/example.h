@@ -22,4 +22,6 @@ private:
   cv::Mat mask_;
   cv::Mat roi_hist_;
 
+  cv::TermCriteria mean_shift_term_;
+
 };
