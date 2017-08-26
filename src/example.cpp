@@ -40,8 +40,8 @@ ExampleClass::ExampleClass()
   cv::imshow("roi_hsv", roi_hsv_);
 
   // generate the mask used when finding the histogram
-  cv::inRange(roi_hsv_, cv::Scalar(0,0,0), cv::Scalar(180,255,255), mask_);
-  cv::imshow("roi_mask", mask_); // THIS IS WHAT DETERMINES WHAT THE HISTOGRAM MEASURES
+  cv::inRange(roi_hsv_, cv::Scalar(0, 0, 0), cv::Scalar(180, 255, 150), mask_);
+  cv::imshow("roi_mask", mask_); // THIS DETERMINES WHAT THE HISTOGRAM MEASURES
 
   // histogram using hue channel only (as seen in examples)
   int n_images = 1; // one image only
