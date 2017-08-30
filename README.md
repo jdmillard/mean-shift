@@ -16,3 +16,4 @@ make
 
 ### Resource Links
 * [Python Example](http://www.bogotobogo.com/python/OpenCV_Python/python_opencv3_mean_shift_tracking_segmentation.php)
+* [Cam Shift Demo](https://github.com/opencv/opencv/blob/master/samples/cpp/camshiftdemo.cpp)
